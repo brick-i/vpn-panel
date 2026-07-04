@@ -1,19 +1,17 @@
 <script>
-  import { createEventDispatcher } from 'svelte';
   import { api } from '../lib/api.js';
 
-  export let client = null;
+  let { client = null, onClose = () => {} } = $props();
 
-  const dispatch = createEventDispatcher();
+  let name = $state(client?.name || '');
+  let allowed_ips = $state(client?.allowed_ips || '0.0.0.0/0, ::/0');
+  let dns = $state(client?.dns || '1.1.1.1, 8.8.8.8');
+  let is_active = $state(client?.is_active ?? true);
+  let loading = $state(false);
+  let error = $state('');
 
-  let name = client?.name || '';
-  let allowed_ips = client?.allowed_ips || '0.0.0.0/0, ::/0';
-  let dns = client?.dns || '1.1.1.1, 8.8.8.8';
-  let is_active = client?.is_active ?? true;
-  let loading = false;
-  let error = '';
-
-  async function save() {
+  async function save(e) {
+    e.preventDefault();
     loading = true;
     error = '';
     try {
@@ -21,10 +19,9 @@
         await api.updateClient(client.id, { name, allowed_ips, dns, is_active });
       } else {
         const result = await api.createClient({ name, allowed_ips, dns });
-        // Show private key only once
         alert(`Client created!\n\nPrivate Key: ${result.private_key}\nIP: ${result.ip_address}\n\nSave this key - it won't be shown again!`);
       }
-      dispatch('close');
+      onClose();
     } catch (e) {
       error = e.message;
     } finally {
@@ -44,7 +41,7 @@
     </div>
   {/if}
 
-  <form on:submit|preventDefault={save} class="space-y-4">
+  <form onsubmit={save} class="space-y-4">
     <div>
       <label class="block text-dark-300 text-sm mb-1">Name</label>
       <input class="input w-full" bind:value={name} required placeholder="My Device" />
@@ -72,7 +69,7 @@
       <button type="submit" class="btn-primary" disabled={loading}>
         {loading ? 'Saving...' : 'Save'}
       </button>
-      <button type="button" class="btn-secondary" on:click={() => dispatch('close')}>Cancel</button>
+      <button type="button" class="btn-secondary" onclick={onClose}>Cancel</button>
     </div>
   </form>
 </div>

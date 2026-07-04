@@ -2,9 +2,9 @@
   import { onMount, onDestroy } from 'svelte';
   import { api } from '../lib/api.js';
 
-  let clientStats = [];
-  let sysInfo = null;
-  let loading = true;
+  let clientStats = $state([]);
+  let sysInfo = $state(null);
+  let loading = $state(true);
   let interval;
 
   onMount(async () => {
@@ -37,19 +37,11 @@
     return `${b.toFixed(1)} ${units[i]}`;
   }
 
-  function timeSince(ts) {
-    if (!ts) return 'Never';
-    const d = Math.floor(ts / 86400);
-    const h = Math.floor((ts % 86400) / 3600);
-    const m = Math.floor((ts % 3600) / 60);
-    if (d > 0) return `${d}d ${h}h ago`;
-    if (h > 0) return `${h}h ${m}m ago`;
-    return `${m}m ago`;
-  }
-
-  $: maxTraffic = clientStats.length > 0
-    ? Math.max(...clientStats.map(c => c.rx_bytes + c.tx_bytes))
-    : 1;
+  let maxTraffic = $derived(
+    clientStats.length > 0
+      ? Math.max(...clientStats.map(c => c.rx_bytes + c.tx_bytes))
+      : 1
+  );
 </script>
 
 <div class="space-y-6">

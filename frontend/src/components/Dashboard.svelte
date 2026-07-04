@@ -2,10 +2,10 @@
   import { onMount, onDestroy } from 'svelte';
   import { api } from '../lib/api.js';
 
-  let status = null;
-  let sysInfo = null;
-  let loading = true;
-  let error = '';
+  let status = $state(null);
+  let sysInfo = $state(null);
+  let loading = $state(true);
+  let error = $state('');
   let interval;
 
   onMount(async () => {
@@ -65,7 +65,7 @@
     {#if status && status.installed}
       <button
         class={status.running ? 'btn-danger' : 'btn-primary'}
-        on:click={toggleServer}
+        onclick={toggleServer}
       >
         {status.running ? '⏹ Stop VPN' : '▶ Start VPN'}
       </button>

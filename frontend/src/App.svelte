@@ -3,8 +3,8 @@
   import Login from './pages/Login.svelte';
   import Main from './pages/Main.svelte';
 
-  let authenticated = false;
-  let checked = false;
+  let authenticated = $state(false);
+  let checked = $state(false);
 
   onMount(() => {
     const token = localStorage.getItem('token');

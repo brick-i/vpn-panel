@@ -3,12 +3,10 @@
   import { api } from '../lib/api.js';
   import ClientForm from './ClientForm.svelte';
 
-  let clients = [];
-  let loading = true;
-  let showForm = false;
-  let editingClient = null;
-  let showQR = null;
-  let showConfig = null;
+  let clients = $state([]);
+  let loading = $state(true);
+  let showForm = $state(false);
+  let editingClient = $state(null);
 
   onMount(loadClients);
 
@@ -79,13 +77,13 @@
 <div class="space-y-6">
   <div class="flex items-center justify-between">
     <h2 class="text-2xl font-bold text-white">Clients</h2>
-    <button class="btn-primary" on:click={() => { editingClient = null; showForm = true; }}>
+    <button class="btn-primary" onclick={() => { editingClient = null; showForm = true; }}>
       + Add Client
     </button>
   </div>
 
   {#if showForm}
-    <ClientForm client={editingClient} on:close={closeForm} />
+    <ClientForm client={editingClient} onClose={closeForm} />
   {/if}
 
   {#if loading}
@@ -122,9 +120,9 @@
                 {formatBytes(client.rx_bytes)} / {formatBytes(client.tx_bytes)}
               </td>
               <td class="py-3 px-4 text-right space-x-2">
-                <button class="text-accent hover:text-accent-hover text-sm" on:click={() => editClient(client)}>Edit</button>
-                <button class="text-accent hover:text-accent-hover text-sm" on:click={() => downloadConfig(client.id, client.name)}>Download</button>
-                <button class="text-red-400 hover:text-red-300 text-sm" on:click={() => deleteClient(client.id)}>Delete</button>
+                <button class="text-accent hover:text-accent-hover text-sm" onclick={() => editClient(client)}>Edit</button>
+                <button class="text-accent hover:text-accent-hover text-sm" onclick={() => downloadConfig(client.id, client.name)}>Download</button>
+                <button class="text-red-400 hover:text-red-300 text-sm" onclick={() => deleteClient(client.id)}>Delete</button>
               </td>
             </tr>
           {/each}

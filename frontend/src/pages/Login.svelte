@@ -2,12 +2,12 @@
   import { onMount } from 'svelte';
   import { api } from '../lib/api.js';
 
-  let isSetup = false;
-  let setupChecked = false;
-  let username = '';
-  let password = '';
-  let loading = false;
-  let error = '';
+  let isSetup = $state(false);
+  let setupChecked = $state(false);
+  let username = $state('');
+  let password = $state('');
+  let loading = $state(false);
+  let error = $state('');
 
   onMount(async () => {
     try {
@@ -20,7 +20,8 @@
     }
   });
 
-  async function handleSubmit() {
+  async function handleSubmit(e) {
+    e.preventDefault();
     loading = true;
     error = '';
     try {
@@ -32,7 +33,6 @@
         const res = await api.login(username, password);
         localStorage.setItem('token', res.access_token);
       }
-      window.location.hash = '#/';
       window.location.reload();
     } catch (e) {
       error = e.message;
@@ -64,10 +64,10 @@
         </div>
       {/if}
 
-      <form on:submit|preventDefault={handleSubmit} class="space-y-4">
+      <form onsubmit={handleSubmit} class="space-y-4">
         <div>
           <label class="block text-dark-300 text-sm mb-1">Username</label>
-          <input class="input w-full" bind:value={username} required placeholder="admin" autofocus />
+          <input class="input w-full" bind:value={username} required placeholder="admin" />
         </div>
         <div>
           <label class="block text-dark-300 text-sm mb-1">Password</label>

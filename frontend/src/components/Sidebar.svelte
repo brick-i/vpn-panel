@@ -14,7 +14,7 @@
 
   function logout() {
     localStorage.removeItem('token');
-    window.location.hash = '#/login';
+    window.location.reload();
   }
 </script>
 
@@ -29,7 +29,7 @@
       <button
         class="w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 transition-colors
                {$currentPage === page.id ? 'bg-accent text-white' : 'text-dark-300 hover:bg-dark-700 hover:text-white'}"
-        on:click={() => navigate(page.id)}
+        onclick={() => navigate(page.id)}
       >
         <span>{page.icon}</span>
         <span>{page.label}</span>
@@ -38,7 +38,7 @@
   </nav>
 
   <div class="p-4 border-t border-dark-600">
-    <button class="w-full text-left px-4 py-3 rounded-lg text-dark-300 hover:bg-dark-700 hover:text-white transition-colors" on:click={logout}>
+    <button class="w-full text-left px-4 py-3 rounded-lg text-dark-300 hover:bg-dark-700 hover:text-white transition-colors" onclick={logout}>
       🚪 Logout
     </button>
   </div>

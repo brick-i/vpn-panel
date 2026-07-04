@@ -2,23 +2,23 @@
   import { onMount } from 'svelte';
   import { api } from '../lib/api.js';
 
-  let config = {};
-  let loading = true;
-  let saving = false;
-  let installing = false;
-  let installProgress = null;
-  let installLog = '';
-  let error = '';
-  let success = '';
-  let status = null;
+  let config = $state({});
+  let loading = $state(true);
+  let saving = $state(false);
+  let installing = $state(false);
+  let installProgress = $state(null);
+  let installLog = $state('');
+  let error = $state('');
+  let success = $state('');
+  let status = $state(null);
 
-  let form = {
+  let form = $state({
     listen_port: 51820,
     dns: '1.1.1.1, 8.8.8.8',
     jc: 0, jmin: 0, jmax: 0,
     s1: 0, s2: 0,
     h1: 0, h2: 0, h3: 0, h4: 0,
-  };
+  });
 
   let installInterval;
 
@@ -36,7 +36,8 @@
     }
   });
 
-  async function saveConfig() {
+  async function saveConfig(e) {
+    e.preventDefault();
     saving = true;
     error = '';
     success = '';
@@ -81,14 +82,6 @@
       installing = false;
     }
   }
-
-  function formatBytes(b) {
-    if (!b) return '0 B';
-    const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-    let i = 0;
-    while (b >= 1024 && i < units.length - 1) { b /= 1024; i++; }
-    return `${b.toFixed(1)} ${units[i]}`;
-  }
 </script>
 
 <div class="space-y-6">
@@ -121,7 +114,7 @@
           <p class="text-dark-300 text-sm">{installLog}</p>
         </div>
       {:else}
-        <button class="btn-primary" on:click={startInstall}>Install AmneziaWG</button>
+        <button class="btn-primary" onclick={startInstall}>Install AmneziaWG</button>
       {/if}
     </div>
   {/if}
@@ -185,7 +178,7 @@
     </div>
 
     <div class="flex gap-3">
-      <button class="btn-primary" on:click={saveConfig} disabled={saving}>
+      <button class="btn-primary" onclick={saveConfig} disabled={saving}>
         {saving ? 'Saving...' : 'Save Configuration'}
       </button>
     </div>
