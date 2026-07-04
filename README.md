@@ -1,24 +1,26 @@
 # AmneziaWG Panel
 
-Web-based management panel for AmneziaVPN (AmneziaWG) servers.
+Веб-панель управления серверами AmneziaVPN (AmneziaWG).
 
-## Features
+## Возможности
 
-- **One-click installation** of AmneziaWG on Ubuntu/Debian
-- **Client management** — create, edit, delete VPN peers
-- **QR codes & config export** — for mobile and desktop clients
-- **Real-time monitoring** — connected clients, traffic, system resources
-- **Obfuscation settings** — configure Jc, Jmin, Jmax, S1, S2, H1-H4
-- **Dark theme** UI
+- **Однострочная установка** AmneziaWG на Ubuntu/Debian
+- **Управление клиентами** — создание, редактирование, удаление пиров
+- **QR-коды и экспорт конфигов** — для мобильных и десктопных клиентов
+- **Мониторинг в реальном времени** — подключённые клиенты, трафик, ресурсы системы
+- **Настройки обфускации** — параметры Jc, Jmin, Jmax, S1, S2, H1-H4
+- **Тёмная тема** интерфейс
 
-## Quick Install (on server)
+## Быстрая установка (на сервер)
 
 ```bash
-git clone <repo> && cd vpn-panel
+git clone https://github.com/brick-i/vpn-panel.git && cd vpn-panel
 sudo bash scripts/install.sh
 ```
 
-## Manual Setup
+После установки панель доступна по адресу: `http://ваш-сервер:8000`
+
+## Ручная установка
 
 ### Backend
 
@@ -30,9 +32,9 @@ pip install -r requirements.txt
 python main.py
 ```
 
-Server starts on `http://localhost:8000`
+Сервер запускается на `http://localhost:8000`
 
-### Frontend (dev)
+### Frontend (для разработки)
 
 ```bash
 cd frontend
@@ -40,46 +42,88 @@ npm install
 npm run dev
 ```
 
-Dev server on `http://localhost:5173` (proxies API to :8000)
+Dev-сервер на `http://localhost:5173` (проксирует API на :8000)
 
-### Production Build
+### Сборка для продакшена
 
 ```bash
 cd frontend
 npm run build
 ```
 
-Copy `frontend/dist/*` to a static file server or serve from FastAPI.
+Скопируйте содержимое `frontend/dist/*` на статический веб-сервер или раздайте через FastAPI.
 
-## Configuration
+## Конфигурация
 
-Environment variables:
+Переменные окружения:
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `SECRET_KEY` | random | JWT signing key |
-| `DATABASE_URL` | sqlite | Database connection |
+| Переменная | По умолчанию | Описание |
+|------------|--------------|----------|
+| `SECRET_KEY` | случайный | Ключ для подписи JWT-токенов |
+| `DATABASE_URL` | sqlite | Строка подключения к базе данных |
 
-## Tech Stack
+## Стек технологий
 
 - **Backend**: Python 3.11+ / FastAPI / SQLite
 - **Frontend**: Svelte 5 / Tailwind CSS / Vite
 - **VPN**: AmneziaWG (amneziawg-tools)
-- **Target OS**: Ubuntu 22.04 / 24.04 LTS
+- **Целевая ОС**: Ubuntu 22.04 / 24.04 LTS
 
 ## API
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/auth/login` | Login |
-| GET | `/api/server/status` | Server status |
-| POST | `/api/server/start` | Start VPN |
-| POST | `/api/server/stop` | Stop VPN |
-| GET | `/api/clients` | List clients |
-| POST | `/api/clients` | Create client |
-| GET | `/api/clients/:id/config` | Download config |
-| GET | `/api/stats/overview` | Dashboard stats |
+| Метод | Эндпоинт | Описание |
+|-------|----------|----------|
+| POST | `/api/auth/login` | Авторизация |
+| GET | `/api/auth/setup-status` | Проверка наличия админа |
+| POST | `/api/auth/setup` | Создание первого админа |
+| GET | `/api/server/status` | Статус сервера |
+| POST | `/api/server/start` | Запуск VPN |
+| POST | `/api/server/stop` | Остановка VPN |
+| POST | `/api/server/restart` | Рестарт VPN |
+| GET | `/api/server/config` | Получение конфигурации |
+| PUT | `/api/server/config` | Обновление конфигурации |
+| POST | `/api/server/install` | Установка AmneziaWG |
+| GET | `/api/server/install/progress` | Прогресс установки |
+| GET | `/api/clients` | Список клиентов |
+| POST | `/api/clients` | Создать клиента |
+| GET | `/api/clients/:id` | Данные клиента |
+| PUT | `/api/clients/:id` | Обновить клиента |
+| DELETE | `/api/clients/:id` | Удалить клиента |
+| GET | `/api/clients/:id/config` | Скачать .conf файл |
+| GET | `/api/stats/overview` | Общая статистика |
+| GET | `/api/stats/traffic` | Статистика трафика |
+| GET | `/api/stats/clients` | Статистика по клиентам |
+| GET | `/api/stats/system` | Информация о системе |
 
-## License
+## Структура проекта
+
+```
+vpn-panel/
+├── backend/
+│   ├── main.py              # Точка входа FastAPI
+│   ├── config.py            # Настройки
+│   ├── database.py          # SQLite (async)
+│   ├── models.py            # Pydantic модели
+│   ├── routers/
+│   │   ├── auth.py          # JWT авторизация
+│   │   ├── server.py        # Управление сервером
+│   │   ├── clients.py       # CRUD клиентов
+│   │   └── stats.py         # Статистика
+│   └── services/
+│       ├── vpn.py           # Обёртка над awg/wg
+│       ├── system.py        # CPU/RAM/disk
+│       └── installer.py     # Установщик
+├── frontend/
+│   └── src/
+│       ├── components/      # Svelte компоненты
+│       ├── pages/           # Страницы
+│       └── lib/             # API клиент, stores
+├── scripts/
+│   ├── install.sh           # Установка панели
+│   └── amneziawg-setup.sh   # Установка AmneziaWG
+└── README.md
+```
+
+## Лицензия
 
 MIT
