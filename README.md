@@ -124,6 +124,85 @@ vpn-panel/
 └── README.md
 ```
 
+## Решение проблем
+
+### Ошибка сборки pydantic-core на Python 3.14
+
+**Симптом:**
+```
+error: the configured Python interpreter version (3.14) is newer than PyO3's maximum supported version (3.13)
+ERROR: Failed building wheel for pydantic-core
+```
+
+**Причина:** Библиотека `pydantic-core` использует PyO3 для связки с Rust. Текущая версия PyO3 (0.22.2) поддерживает только Python до 3.13 включительно. Python 3.14 ещё не поддерживается.
+
+**Решение — установить Python 3.13:**
+
+```bash
+# Debian/Ubuntu
+apt-get install -y python3.13 python3.13-venv
+
+# Пересоздать venv
+cd /opt/vpn-panel/backend
+rm -rf venv
+python3.13 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+# Перезапустить сервис
+systemctl restart vpn-panel
+```
+
+**Альтернатива (не рекомендуется):** установить переменную окружения перед `pip install`:
+```bash
+export PYO3_USE_ABI3_FORWARD_COMPATIBILITY=1
+pip install -r requirements.txt
+```
+Этот флаг заставляет PyO3 собираться через стабильный ABI, но может работать нестабильно.
+
+### AmneziaWG не устанавливается
+
+**Симптом:** ошибка на шаге установки AmneziaWG.
+
+**Решение — ручная установка:**
+```bash
+# Добавить репозиторий
+curl -fsSL https://deb.debian.org/debian/pool/main/a/amneziawg/amneziawg.gpg.key | gpg --dearmor -o /usr/share/keyrings/amneziawg.gpg
+echo "deb [signed-by=/usr/share/keyrings/amneziawg.gpg] https://deb.debian.org/debian bookworm main" > /etc/apt/sources.list.d/amneziawg.list
+
+# Установить
+apt-get update -y
+apt-get install -y amneziawg
+
+# Проверить
+awg --version
+```
+
+### Панель не запускается
+
+**Проверьте статус:**
+```bash
+systemctl status vpn-panel
+journalctl -u vpn-panel -f
+```
+
+**Перезапустите:**
+```bash
+systemctl restart vpn-panel
+```
+
+**Проверьте порт:**
+```bash
+ss -tlnp | grep 8000
+```
+
+### Клиент не может подключиться
+
+1. Убедитесь, что AmneziaWG запущен: `awg show awg0`
+2. Проверьте firewall: `ufw allow 51820/udp`
+3. Проверьте, что в конфиге клиента правильный `Endpoint` (IP сервера и порт)
+4. Убедитесь, что `AllowedIPs` на сервере включает IP клиента
+
 ## Лицензия
 
 MIT
