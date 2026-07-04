@@ -18,7 +18,12 @@ fi
 
 echo "[1/5] Updating system..."
 apt-get update -y
-apt-get install -y python3 python3-pip python3-venv curl git
+apt-get install -y software-properties-common curl git
+
+echo "Installing Python 3.13..."
+add-apt-repository -y ppa:deadsnakes/ppa
+apt-get update -y
+apt-get install -y python3.13 python3.13-venv python3.13-dev
 
 echo "[2/5] Installing AmneziaWG..."
 bash <(curl -fsSL https://raw.githubusercontent.com/amnezia-vpn/amnezia-client/main/client/scripts/install.sh) 2>/dev/null || {
@@ -37,7 +42,7 @@ mkdir -p "$PANEL_DIR"
 cp -r ./* "$PANEL_DIR/"
 
 cd "$PANEL_DIR/backend"
-python3 -m venv venv
+python3.13 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 
